@@ -1,6 +1,5 @@
 from scipy.cluster.hierarchy import fcluster, linkage, dendrogram
 from scipy import spatial
-import matplotlib.pyplot as plt
 import numpy as np
 
 class node:
@@ -13,7 +12,7 @@ def func():
     name=[]
     nodes={}
     #fp=open(r'E:\nstl\fcluster\data\data3.txt', 'r')
-    fp=open(r'F:\download\chapter\chapter\blogdata.txt', 'r')
+    fp=open(r'blogdata.txt', 'r')
     try:
         for line in fp:
             temp=line.split('\t')
@@ -23,7 +22,7 @@ def func():
         fp.close()
     #print name
     distance = spatial.distance.pdist(matData)
-    linkresult=linkage(distance, 'single', 'euclidean')
+    linkresult=linkage(distance, 'average', 'euclidean')
     Llink=len(linkresult)+1
     
     for index, item in enumerate(reversed(linkresult)):
@@ -33,25 +32,58 @@ def func():
         nodes[index]=node(-1, -1)
     
     que=[]
-    s=''
     que.append(2*Llink-2)
     fp=open('linkage.txt', 'w')
+    fp.write(str(2*Llink-2))
+    fp.write('\n')
+    future=0
+    current=1
     try:
         while len(que)!=0:
+            if current==0:
+                current=future
+                future=0
+                fp.write('\n')
             temp=que.pop(0)
-            if temp!=-1:
-                fp.write(str(temp))
-                que.append(nodes[temp].left)
-                que.append(nodes[temp].right)
+            current=current-1
+            if temp<=98:
+                fp.write(' || ')
             else:
-                fp.write(str(temp))
+               if nodes[temp].left==-1:
+                   future=future+1
+                   if nodes[temp].left<=98:
+                       fp.write(name[nodes[temp].right])
+                   else:
+                       fp.write(str(nodes[temp].right))
+                   fp.write(' || ')
+               elif nodes[temp].right==-1:
+                   future=future+1
+                   if nodes[temp].left<=98:
+                       fp.write(name[nodes[temp].left])
+                   else:
+                       fp.write(str(nodes[temp].left))
+                   fp.write(' || ')
+               else:
+                   future=future+2
+                   if nodes[temp].left<=98:
+                       fp.write(name[nodes[temp].left])
+                   else:
+                       fp.write(str(nodes[temp].left))
+                   fp.write('  ')
+                   if nodes[temp].right<=98:
+                       fp.write(name[nodes[temp].right])
+                   else:
+                       fp.write(str(nodes[temp].right))
+                   fp.write(' || ')
+               que.append(nodes[temp].left)
+               que.append(nodes[temp].right)
     finally:
         fp.close()
     print '1'
 #    f=open('linkage.txt', 'w')
 #    try:
-#    fc=fcluster(linkresult,t=0.9,criterion='inconsistent',depth=2,R=None,monocrit=None)
-#    print fc
+    fc=fcluster(linkresult,t=0.8,criterion='inconsistent',depth=2,R=None,monocrit=None)
+    print fc
 #    f=open('fluster.txt', 'w')
 #    try:
 #        for num, item in enumerate(fc):
